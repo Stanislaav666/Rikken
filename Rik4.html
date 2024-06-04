@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rik Spel Telling</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            margin: auto;
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+        }
+        .players button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .players button.selected {
+            color: black;
+            font-weight: bold;
+        }
+        .players button.inactive {
+            background-color: lightgray;
+            color: black;
+            cursor: not-allowed;
+        }
+        .players button.dealer {
+            background-color: #ff6347; /* Tomato color to highlight the dealer */
+        }
+        select, input[type="number"] {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button.submit {
+            padding: 10px 20px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rik Spel Telling</h1>
+
+        <div class="section">
+            <h2>Selecteer de speler die rikt</h2>
+            <div class="players" id="rikker-selectie">
+                <button class="player-button" id="rikker-speler-1" onclick="selectPlayer('player1')">Ad</button>
+                <button class="player-button" id="rikker-speler-2" onclick="selectPlayer('player2')">Bart</button>
+                <button class="player-button" id="rikker-speler-3" onclick="selectPlayer('player3')">Harald</button>
+                <button class="player-button" id="rikker-speler-4" onclick="selectPlayer('player4')">Mark</button>
+            </div>
+            <p id="selected-rikker">Geselecteerde rikker: Geen</p>
+        </div>
+
+        <div class="section">
+            <h2>Selecteer de spelvorm</h2>
+            <select id="spelvorm" onchange="toggleOptions()">
+                <option value="Rikken">Rikken</option>
+                <option value="3 Azen">3 Azen</option>
+                <option value="8 Alleen">8 Alleen</option>
+                <option value="9 Alleen">9 Alleen</option>
+                <option value="10 Alleen">10 Alleen</option>
+                <option value="11 Alleen">11 Alleen</option>
+                <option value="12 Alleen">12 Alleen</option>
+                <option value="Solo">Solo</option>
+                <option value="Piek">Piek</option>
+                <option value="Misere">Misere</option>
+                <option value="Open Piek">Open Piek</option>
+                <option value="Open Misere">Open Misere</option>
+				<option value="Open Solo">Open Solo</option>
+            </select>
+        </div>
+
+        <div class="section" id="maat-section">
+            <h2>Selecteer de maat</h2>
+            <div class="players" id="maat-selectie">
+                <button class="player-button" id="maat-speler-1" onclick="selectMaat('player1')">Ad</button>
+                <button class="player-button" id="maat-speler-2" onclick="selectMaat('player2')">Bart</button>
+                <button class="player-button" id="maat-speler-3" onclick="selectMaat('player3')">Harald</button>
+                <button class="player-button" id="maat-speler-4" onclick="selectMaat('player4')">Mark</button>
+            </div>
+            <p id="selected-maat">Geselecteerde maat: Geen</p>
+        </div>
+
+        <div class="section">
+            <h2>Voer de behaalde slagen in</h2>
+            <input type="number" id="slagen" min="0" max="13" placeholder="Behaalde slagen (0-13)">
+            <button class="submit" onclick="calculateScore()">Bereken Score</button>
+            <button class="submit" onclick="passRound()">Pas</button>
+        </div>
+
+        <div class="section">
+            <h2>Overzicht</h2>
+            <p id="score-overview">Nog geen score berekend</p>
+        </div>
+
+        <div class="section">
+            <label><input type="checkbox" id="confirm-undo" onclick="toggleUndoButton()"> Bevestig ongedaan maken</label>
+            <button id="undo-button" onclick="undoLastScore()" disabled>Ongedaan maken</button>
+        </div>
+
+        <div class="section">
+            <label><input type="checkbox" id="confirm-reset" onclick="toggleResetButton()"> Bevestig reset</label>
+            <button id="reset-button" onclick="resetScores()" disabled>Reset</button>
+        </div>
+    </div>
+
+    <script>
+        let spelerRikt = '';
+        let spelerMaat = '';
+        let scores = {
+            player1: 0,
+            player2: 0,
+            player3: 0,
+            player4: 0
+        };
+        let lastScores = { ...scores }; // Voor het ongedaan maken van de laatste telling
+        let lastSpelerRikt = ''; // Voor het herstellen van de rikker
+        let lastSpelerMaat = ''; // Voor het herstellen van de maat
+        let ronde = 1;
+        let dealerIndex = 1; // Start met speler 1 als deler
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark"
+            };
+            
+            document.getElementById('rikker-speler-1').textContent = players.player1;
+            document.getElementById('rikker-speler-2').textContent = players.player2;
+            document.getElementById('rikker-speler-3').textContent = players.player3;
+            document.getElementById('rikker-speler-4').textContent = players.player4;
+
+            document.getElementById('maat-speler-1').textContent = players.player1;
+            document.getElementById('maat-speler-2').textContent = players.player2;
+            document.getElementById('maat-speler-3').textContent = players.player3;
+            document.getElementById('maat-speler-4').textContent = players.player4;
+
+            updateDealerButton();
+        });
+
+        function calculateScore() {
+            lastScores = { ...scores }; // Sla de huidige scores op voor ongedaan maken
+            lastSpelerRikt = spelerRikt; // Sla de huidige rikker op
+            lastSpelerMaat = spelerMaat; // Sla de huidige maat op
+
+            const slagen = parseFloat(document.getElementById('slagen').value);
+            const spelvorm = document.getElementById('spelvorm').value;
+            resetForm(); // Voeg deze regel toe om het formulier te resetten
+
+            if (!spelerRikt) {
+                alert("Selecteer een rikker.");
+                return;
+            }
+
+            if (isNaN(slagen) || slagen < 0 || slagen > 13) {
+                alert("Voer een geldig aantal slagen in (0-13).");
+                return;
+            }
+
+            const rikkerId = getPlayerId(spelerRikt);
+            const maatId = getPlayerId(spelerMaat);
+            const actieveSpelers = Object.keys(scores).filter(id => id !== rikkerId && id !== maatId);
+
+            let puntenRikker = 0;
+            let puntenMaat = 0;
+            let puntenVerliezers = 0;
+
+            if (spelvorm === 'Rikken') {
+                const standaardWinst = 2;
+                const standaardVerlies = -3;
+                const extraWinstPerSlag = 2;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 8;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+
+                    if (slagen === 13) {
+                        puntenRikker *= 2;
+                    }
+
+                    puntenVerliezers = -(puntenRikker + (spelerMaat ? puntenRikker : 0)) / actieveSpelers.length;
+                    if (spelerMaat) {
+                        puntenMaat = puntenRikker;
+                    }
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = (standaardVerlies + tekort) * -2; // Verlies van de rikker vermenigvuldigd met 2
+
+                    // Punten van de rikker verdelen over de actieve spelers
+                    puntenVerliezers = puntenRikker / actieveSpelers.length;
+                    puntenRikker = -puntenRikker; // Rikker betaalt het dubbele verlies
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                if (spelerMaat) {
+                    scores[maatId] += puntenMaat;
+                }
+                actieveSpelers.forEach(id => {
+                    scores[id] += puntenVerliezers;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            } else if (spelvorm === '3 Azen') {
+                const standaardWinst = 4;
+                const standaardVerlies = -6;
+                const extraWinstPerSlag = 4;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 8;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+
+                    if (slagen === 13) {
+                        puntenRikker *= 2;
+                    }
+
+                    puntenVerliezers = -(puntenRikker + (spelerMaat ? puntenRikker : 0)) / actieveSpelers.length;
+                    if (spelerMaat) {
+                        puntenMaat = puntenRikker;
+                    }
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = standaardVerlies + tekort;
+                    puntenMaat = puntenRikker;
+
+                    // Punten van de rikker en maat verdelen over de actieve spelers
+                    puntenVerliezers = -(puntenRikker + puntenMaat) / actieveSpelers.length;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                if (spelerMaat) {
+                    scores[maatId] += puntenMaat;
+                }
+                actieveSpelers.forEach(id => {
+                    scores[id] += puntenVerliezers;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van 3 Azen
+			
+			// ------> Hieronder is het blok voor de telling van 8 Alleen
+            else if (spelvorm === '8 Alleen') {
+                const standaardWinst = 6;
+                const standaardVerlies = -9;
+                const extraWinstPerSlag = 3;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 8;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = standaardVerlies + tekort;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van 8 Alleen
+			
+			// ------> Hieronder is het blok voor de telling van 9 Alleen
+            else if (spelvorm === '9 Alleen') {
+                const standaardWinst = 9;
+                const standaardVerlies = -12;
+                const extraWinstPerSlag = 3;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 9;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = standaardVerlies + tekort;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van 9 Alleen
+
+            // ------> Hieronder is het blok voor de telling van 10 Alleen
+            else if (spelvorm === '10 Alleen') {
+                const standaardWinst = 12;
+                const standaardVerlies = -15;
+                const extraWinstPerSlag = 3;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 10;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = standaardVerlies + tekort;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van 10 Alleen
+			
+
+            // ------> Hieronder is het blok voor de telling van 11 Alleen
+            else if (spelvorm === '11 Alleen') {
+                const standaardWinst = 15;
+                const standaardVerlies = -18;
+                const extraWinstPerSlag = 3;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 11;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = standaardVerlies + tekort;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+			
+            // ------> Einde blok voor de telling van 11 Alleen
+
+            // ------> Hieronder is het blok voor de telling van 12 Alleen
+            else if (spelvorm === '12 Alleen') {
+                const standaardWinst = 18;
+                const standaardVerlies = -21;
+                const extraWinstPerSlag = 3;
+                const extraVerliesPerSlag = -3;
+                const minimumSlagen = 12;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    let extraPunten = (slagen - minimumSlagen) * extraWinstPerSlag;
+                    puntenRikker = standaardWinst + extraPunten;
+                } else {
+                    // Verlies scenario
+                    let tekort = (minimumSlagen - slagen) * extraVerliesPerSlag;
+                    puntenRikker = standaardVerlies + tekort;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van 12 Alleen
+
+            // ------> Hieronder is het blok voor de telling van Solo
+            else if (spelvorm === 'Solo') {
+                const standaardWinst = 24;
+                const standaardVerlies = -24;
+                const minimumSlagen = 13;
+
+                if (slagen === minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = standaardVerlies;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+				
+            }
+            // ------> Einde blok voor de telling van Solo
+
+            // ------> Hieronder is het blok voor de telling van Misere
+            else if (spelvorm === 'Misere') {
+                const standaardWinst = 9;
+                const standaardVerlies = -12;
+                const minimumSlagen = 0;
+
+                if (slagen === minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = 1 * standaardVerlies;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van Misere
+
+            // ------> Hieronder is het blok voor de telling van Piek
+            else if (spelvorm === 'Piek') {
+                const standaardWinst = 12;
+                const standaardVerlies = -15;
+                const minimumSlagen = 1;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = 1 * standaardVerlies;
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van Piek
+
+            // ------> Hieronder is het blok voor de telling van Open Misere
+            else if (spelvorm === 'Open Misere') {
+                const standaardWinst = 18;
+                const standaardVerlies = -21;
+                const minimumSlagen = 0;
+
+                if (slagen === minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van Open Misere
+
+            // ------> Hieronder is het blok voor de telling van Open Piek
+            else if (spelvorm === 'Open Piek') {
+                const standaardWinst = 21;
+                const standaardVerlies = -24;
+                const minimumSlagen = 1;
+
+                if (slagen >= minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van Open Piek
+
+            // ------> Hieronder is het blok voor de telling van Open Solo
+            else if (spelvorm === 'Open Solo') {
+                const standaardWinst = 36;
+                const standaardVerlies = -36;
+                const minimumSlagen = 13;
+
+                if (slagen === minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                }
+
+                // Punten toewijzen
+                scores[rikkerId] += puntenRikker;
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van Open Solo
+			
+			function resetForm() {
+				document.getElementById('spelvorm').value = 'Rikken';
+				document.getElementById('slagen').value = '';
+			}
+        }
+
+        function passRound() {
+            updateDealerButton();
+            ronde++;
+            updateScoreOverview();
+        }
+
+        function updateScoreOverview() {
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark"
+            };
+            
+            let overviewText = '<br><br>';
+
+            for (let key in players) {
+                if (players[key]) {
+                    overviewText += `${players[key]}: ${scores[key]}<br>`;
+                }
+            }
+
+            document.getElementById('score-overview').innerHTML = overviewText;
+        }
+
+        function toggleUndoButton() {
+            const confirmUndo = document.getElementById('confirm-undo');
+            const undoButton = document.getElementById('undo-button');
+            undoButton.disabled = !confirmUndo.checked;
+        }
+
+        function undoLastScore() {
+            scores = { ...lastScores }; // Herstel de scores naar de laatste opgeslagen staat
+            updateScoreOverview();
+            spelerRikt = lastSpelerRikt; // Herstel de rikker
+            spelerMaat = lastSpelerMaat; // Herstel de maat
+            updateButtonStyles();
+            toggleOptions();
+            document.getElementById('confirm-undo').checked = false;
+            document.getElementById('undo-button').disabled = true;
+        }
+
+        function selectPlayer(playerId) {
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark"
+            };
+            const playerName = players[playerId];
+
+            if (spelerRikt === playerName) {
+                spelerRikt = '';
+                document.getElementById('selected-rikker').textContent = 'Geselecteerde rikker: Geen';
+                updateButtonStyles();
+                return;
+            }
+            spelerRikt = playerName;
+            document.getElementById('selected-rikker').textContent = `Geselecteerde rikker: ${playerName}`;
+            updateButtonStyles();
+        }
+
+        function selectMaat(playerId) {
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark"
+            };
+            const playerName = players[playerId];
+
+            if (!spelerRikt) {
+                alert("Selecteer eerst een rikker.");
+                return;
+            }
+            if (spelerMaat === playerName) {
+                spelerMaat = '';
+                document.getElementById('selected-maat').textContent = 'Geselecteerde maat: Geen';
+                updateButtonStyles();
+                return;
+            }
+            if (spelerRikt === playerName) {
+                alert("De maat kan niet ook de rikker zijn.");
+                return;
+            }
+            spelerMaat = playerName;
+            document.getElementById('selected-maat').textContent = `Geselecteerde maat: ${playerName}`;
+            updateButtonStyles();
+        }
+
+        function updateButtonStyles() {
+            document.querySelectorAll('.player-button').forEach(button => {
+                button.classList.remove('selected');
+            });
+            if (spelerRikt) {
+                document.querySelector(`[onclick="selectPlayer('${getPlayerId(spelerRikt)}')"]`).classList.add('selected');
+            }
+            if (spelerMaat) {
+                document.querySelector(`[onclick="selectMaat('${getPlayerId(spelerMaat)}')"]`).classList.add('selected');
+            }
+        }
+
+        function toggleOptions() {
+            const spelvorm = document.getElementById('spelvorm').value;
+            const maatSection = document.getElementById('maat-section');
+
+            if (spelvorm === 'Rikken' || spelvorm === '3 Azen') {
+                maatSection.style.display = 'block';
+            } else {
+                maatSection.style.display = 'none';
+                spelerMaat = '';
+                document.getElementById('selected-maat').textContent = 'Geselecteerde maat: Geen';
+                updateButtonStyles();
+            }
+        }
+
+        function getPlayerId(playerName) {
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark"
+            };
+            for (let key in players) {
+                if (players[key] === playerName) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        function clearPlayerSelection() {
+            spelerRikt = '';
+            spelerMaat = '';
+            document.getElementById('selected-rikker').textContent = 'Geselecteerde rikker: Geen';
+            document.getElementById('selected-maat').textContent = 'Geselecteerde maat: Geen';
+            updateButtonStyles();
+        }
+
+        function toggleResetButton() {
+            const confirmReset = document.getElementById('confirm-reset');
+            const resetButton = document.getElementById('reset-button');
+            resetButton.disabled = !confirmReset.checked;
+        }
+
+        function resetScores() {
+            if (confirm("Weet je zeker dat je alle scores wilt resetten?")) {
+                scores = {
+                    player1: 0,
+                    player2: 0,
+                    player3: 0,
+                    player4: 0
+                };
+                ronde = 1;
+                updateScoreOverview();
+                clearPlayerSelection();
+                document.getElementById('confirm-reset').checked = false;
+                document.getElementById('reset-button').disabled = true;
+                dealerIndex = 1; // Reset dealer to player 1
+                updateDealerButton();
+            }
+        }
+
+        function updateDealerButton() {
+            document.querySelectorAll('.player-button').forEach(button => {
+                button.classList.remove('dealer');
+            });
+
+            document.getElementById(`rikker-speler-${dealerIndex}`).classList.add('dealer');
+            document.getElementById(`maat-speler-${dealerIndex}`).classList.add('dealer');
+
+            dealerIndex = (dealerIndex % 4) + 1; // Cycle dealer index from 1 to 4
+        }
+    </script>
+</body>
+</html>
