@@ -150,7 +150,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const players = JSON.parse(localStorage.getItem('players'));
-            
+            const initialScores = JSON.parse(localStorage.getItem('scores'));
+
             document.getElementById('rikker-speler-1').textContent = players.player1;
             document.getElementById('rikker-speler-2').textContent = players.player2;
             document.getElementById('rikker-speler-3').textContent = players.player3;
@@ -163,24 +164,28 @@
             document.getElementById('maat-speler-4').textContent = players.player4;
             document.getElementById('maat-speler-5').textContent = players.player5;
 
+            // Initialiseer scores
+            scores.player1 = initialScores.score1;
+            scores.player2 = initialScores.score2;
+            scores.player3 = initialScores.score3;
+            scores.player4 = initialScores.score4;
+            scores.player5 = initialScores.score5;
+
+            updateScoreOverview();
+
             // Selecteer willekeurig een inactieve speler
             const inactiveIndex = Math.floor(Math.random() * Object.keys(players).length) + 1;
             setInactivePlayer(inactiveIndex);
         });
 
         function calculateScore() {
-		
             lastScores = { ...scores }; // Sla de huidige scores op voor ongedaan maken
             lastInactivePlayer = localStorage.getItem('inactivePlayer'); // Sla de huidige inactieve speler op
             lastSpelerRikt = spelerRikt; // Sla de huidige rikker op
             lastSpelerMaat = spelerMaat; // Sla de huidige maat op
-			
 
             const slagen = parseFloat(document.getElementById('slagen').value);
             const spelvorm = document.getElementById('spelvorm').value;
-			resetForm(); // Voeg deze regel toe om het formulier te resetten
-
-			
 
             if (!spelerRikt) {
                 alert("Selecteer een rikker.");
@@ -188,7 +193,7 @@
             }
 
             if (isNaN(slagen) || slagen < 0 || slagen > 13) {
-                alert("Voer een geldig aantal slagen in(0-13).");
+                alert("Voer een geldig aantal slagen in (0-13).");
                 return;
             }
 
@@ -248,13 +253,7 @@
                 setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             } else if (spelvorm === '3 Azen') {
                 const standaardWinst = 4;
                 const standaardVerlies = -6;
@@ -296,21 +295,17 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van 3 Azen
-			
-			// ------> Hieronder is het blok voor de telling van 8 Alleen
+
+            // ------> Hieronder is het blok voor de telling van 8 Alleen
             else if (spelvorm === '8 Alleen') {
                 const standaardWinst = 6;
                 const standaardVerlies = -9;
@@ -336,21 +331,17 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van 8 Alleen
-			
-			// ------> Hieronder is het blok voor de telling van 9 Alleen
+
+            // ------> Hieronder is het blok voor de telling van 9 Alleen
             else if (spelvorm === '9 Alleen') {
                 const standaardWinst = 9;
                 const standaardVerlies = -12;
@@ -376,17 +367,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van 9 Alleen
 
@@ -416,20 +403,15 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van 10 Alleen
-			
 
             // ------> Hieronder is het blok voor de telling van 11 Alleen
             else if (spelvorm === '11 Alleen') {
@@ -457,19 +439,14 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
-			
             // ------> Einde blok voor de telling van 11 Alleen
 
             // ------> Hieronder is het blok voor de telling van 12 Alleen
@@ -498,17 +475,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van 12 Alleen
 
@@ -534,18 +507,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
-				
+                resetForm();
             }
             // ------> Einde blok voor de telling van Solo
 
@@ -560,7 +528,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies;
+                    puntenRikker = standaardVerlies;
                 }
 
                 // Punten toewijzen
@@ -571,17 +539,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van Misere
 
@@ -596,7 +560,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies;
+                    puntenRikker = standaardVerlies;
                 }
 
                 // Punten toewijzen
@@ -607,17 +571,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van Piek
 
@@ -632,7 +592,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                    puntenRikker = standaardVerlies; // Correcte notatie voor negatieve score
                 }
 
                 // Punten toewijzen
@@ -643,17 +603,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van Open Misere
 
@@ -668,7 +624,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                    puntenRikker = standaardVerlies; // Correcte notatie voor negatieve score
                 }
 
                 // Punten toewijzen
@@ -679,17 +635,13 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
+                resetForm();
             }
             // ------> Einde blok voor de telling van Open Piek
 
@@ -704,7 +656,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                    puntenRikker = standaardVerlies; // Correcte notatie voor negatieve score
                 }
 
                 // Punten toewijzen
@@ -715,31 +667,21 @@
 
                 updateScoreOverview();
                 clearPlayerSelection();
-                incrementRoundCount();
-                moveHighlightToLeft();
+
+                // Verspring de inactieve speler naar de vorige
+                let nextInactive = (parseInt(inactivePlayer) % Object.keys(scores).length) + 1;
+                setInactivePlayer(nextInactive);
 
                 // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
-				
-				
+                resetForm();
             }
             // ------> Einde blok voor de telling van Open Solo
-			
-			function resetForm() {
-				document.getElementById('spelvorm').value = 'Rikken';
-				document.getElementById('slagen').value = '';
-                document.getElementById('maat-section').style.display = 'block'; // Voeg deze regel toe om het maat selectie veld opnieuw weer te geven
-				
-			}
+        }
 
-			
-			
+        function resetForm() {
+            document.getElementById('spelvorm').value = 'Rikken';
+            document.getElementById('slagen').value = '';
+            toggleOptions();
         }
 
         // Pas functie
@@ -769,18 +711,18 @@
         }
 
         function updateScoreOverview() {
-    const players = JSON.parse(localStorage.getItem('players'));
-    
-    let overviewText = '<br><br>'; // Verwijderde ronde informatie van hier
+            const players = JSON.parse(localStorage.getItem('players'));
+            
+            let overviewText = '<br><br>';
 
-    for (let key in players) {
-        if (players[key]) {
-            overviewText += `${players[key]}: ${scores[key]}<br>`;
+            for (let key in players) {
+                if (players[key]) {
+                    overviewText += `${players[key]}: ${scores[key]}<br>`;
+                }
+            }
+
+            document.getElementById('score-overview').innerHTML = overviewText;
         }
-    }
-
-    document.getElementById('score-overview').innerHTML = overviewText;
-}
 
         function toggleUndoButton() {
             const confirmUndo = document.getElementById('confirm-undo');
@@ -822,9 +764,7 @@
         }
 
         function selectMaat(playerId) {
-            
-			const players = JSON.parse(localStorage.getItem('players'));
-			
+            const players = JSON.parse(localStorage.getItem('players'));
             const playerName = players[playerId];
             const inactivePlayer = localStorage.getItem('inactivePlayer');
 
@@ -879,12 +819,8 @@
         }
 
         function getPlayerId(playerName) {
-            
-			
-			const players = JSON.parse(localStorage.getItem('players'));
-			
-			
-			
+            const players = JSON.parse(localStorage.getItem('players'));
+
             for (let key in players) {
                 if (players[key] === playerName) {
                     return key;
