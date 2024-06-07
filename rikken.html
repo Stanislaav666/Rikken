@@ -60,6 +60,14 @@
             color: #fff;
             cursor: pointer;
         }
+		        .pass-btn {
+            padding: 10px 20px;
+            background-color: #ceb236; /* Tomato color */
+            border: none;
+            border-radius: 5px;
+            color: #fff; /* Witte tekstkleur */
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -113,7 +121,7 @@
             <h2>Voer de behaalde slagen in</h2>
             <input type="number" id="slagen" min="0" max="13" placeholder="Behaalde slagen (0-13)">
             <button class="submit" onclick="calculateScore()">Bereken Score</button>
-            <button class="submit" onclick="passRound()">Pas</button>
+            <button class="pass-btn" onclick="passRound()">Pas</button>
         </div>
 
         <div class="section">
@@ -676,6 +684,8 @@
                 resetForm();
             }
             // ------> Einde blok voor de telling van Open Solo
+			
+
         }
 
         function resetForm() {
