@@ -12,7 +12,7 @@
             background-color: #f0f0f0;
         }
         .container {
-            background-color: #fff;
+            background-color: #ccc;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -63,6 +63,7 @@
             color: #fff;
             cursor: pointer;
         }
+
     </style>
 </head>
 <body>
@@ -155,6 +156,12 @@
                 player3: "Harald",
                 player4: "Mark"
             };
+            const initialScores = JSON.parse(localStorage.getItem('scores')) || {
+                score1: 0,
+                score2: 0,
+                score3: 0,
+                score4: 0
+            };
             
             document.getElementById('rikker-speler-1').textContent = players.player1;
             document.getElementById('rikker-speler-2').textContent = players.player2;
@@ -166,6 +173,13 @@
             document.getElementById('maat-speler-3').textContent = players.player3;
             document.getElementById('maat-speler-4').textContent = players.player4;
 
+            // Initialiseer scores
+            scores.player1 = initialScores.score1;
+            scores.player2 = initialScores.score2;
+            scores.player3 = initialScores.score3;
+            scores.player4 = initialScores.score4;
+
+            updateScoreOverview();
             updateDealerButton();
         });
 
@@ -301,8 +315,7 @@
             }
             // ------> Einde blok voor de telling van 3 Azen
 			
-			// ------> Hieronder is het blok voor de telling van 8 Alleen
-            else if (spelvorm === '8 Alleen') {
+			        else if (spelvorm === '8 Alleen') {
                 const standaardWinst = 6;
                 const standaardVerlies = -9;
                 const extraWinstPerSlag = 3;
@@ -709,6 +722,17 @@
             }
             // ------> Einde blok voor de telling van Open Solo
 			
+			
+			
+			
+			
+			
+			
+			
+			
+			// ------> Hieronder is het blok voor de telling van 8 Alleen
+    
+			
 			function resetForm() {
 				document.getElementById('spelvorm').value = 'Rikken';
 				document.getElementById('slagen').value = '';
@@ -719,6 +743,7 @@
             updateDealerButton();
             ronde++;
             updateScoreOverview();
+			
         }
 
         function updateScoreOverview() {
