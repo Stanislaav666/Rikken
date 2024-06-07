@@ -46,7 +46,7 @@
             cursor: not-allowed;
         }
         .players button.dealer {
-            background-color: #ff6347; /* Tomato color to highlight the dealer */
+            background-color: #80bdff; 
         }
         select, input[type="number"] {
             padding: 10px;
@@ -63,7 +63,14 @@
             color: #fff;
             cursor: pointer;
         }
-
+        .pass-btn {
+            padding: 10px 20px;
+            background-color: #ceb236; /* Tomato color */
+            border: none;
+            border-radius: 5px;
+            color: #fff; /* Witte tekstkleur */
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +103,7 @@
                 <option value="Misere">Misere</option>
                 <option value="Open Piek">Open Piek</option>
                 <option value="Open Misere">Open Misere</option>
-				<option value="Open Solo">Open Solo</option>
+                <option value="Open Solo">Open Solo</option>
             </select>
         </div>
 
@@ -115,7 +122,7 @@
             <h2>Voer de behaalde slagen in</h2>
             <input type="number" id="slagen" min="0" max="13" placeholder="Behaalde slagen (0-13)">
             <button class="submit" onclick="calculateScore()">Bereken Score</button>
-            <button class="submit" onclick="passRound()">Pas</button>
+            <button class="pass-btn" onclick="passRound()">Pas</button>
         </div>
 
         <div class="section">
@@ -314,7 +321,6 @@
                 document.getElementById('spelvorm').blur();
             }
             // ------> Einde blok voor de telling van 3 Azen
-			
 			        else if (spelvorm === '8 Alleen') {
                 const standaardWinst = 6;
                 const standaardVerlies = -9;
@@ -721,18 +727,8 @@
                 document.getElementById('spelvorm').blur();
             }
             // ------> Einde blok voor de telling van Open Solo
-			
-			
-			
-			
-			
-			
-			
-			
-			
 			// ------> Hieronder is het blok voor de telling van 8 Alleen
     
-			
 			function resetForm() {
 				document.getElementById('spelvorm').value = 'Rikken';
 				document.getElementById('slagen').value = '';
@@ -743,7 +739,6 @@
             updateDealerButton();
             ronde++;
             updateScoreOverview();
-			
         }
 
         function updateScoreOverview() {
