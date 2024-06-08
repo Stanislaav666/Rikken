@@ -60,12 +60,12 @@
             color: #fff;
             cursor: pointer;
         }
-		        .pass-btn {
+        .pass-btn {
             padding: 10px 20px;
-            background-color: #ceb236; /* Tomato color */
+            background-color: #ceb236;
             border: none;
             border-radius: 5px;
-            color: #fff; /* Witte tekstkleur */
+            color: #fff;
             cursor: pointer;
         }
     </style>
@@ -187,13 +187,19 @@
         });
 
         function calculateScore() {
+            const spelvorm = document.getElementById('spelvorm').value;
+
+            if ((spelvorm === 'Rikken' || spelvorm === '3 Azen') && !spelerMaat) {
+                alert('Selecteer een maat voor deze spelvorm!');
+                return;
+            }
+
             lastScores = { ...scores }; // Sla de huidige scores op voor ongedaan maken
             lastInactivePlayer = localStorage.getItem('inactivePlayer'); // Sla de huidige inactieve speler op
             lastSpelerRikt = spelerRikt; // Sla de huidige rikker op
             lastSpelerMaat = spelerMaat; // Sla de huidige maat op
 
             const slagen = parseFloat(document.getElementById('slagen').value);
-            const spelvorm = document.getElementById('spelvorm').value;
 
             if (!spelerRikt) {
                 alert("Selecteer een rikker.");
@@ -311,7 +317,8 @@
                 // Reset het formulier
                 resetForm();
             }
-            // ------> Einde blok voor de telling van 3 Azen
+
+
 
             // ------> Hieronder is het blok voor de telling van 8 Alleen
             else if (spelvorm === '8 Alleen') {
@@ -684,8 +691,7 @@
                 resetForm();
             }
             // ------> Einde blok voor de telling van Open Solo
-			
-
+            // Blok voor overige spelvormen blijft ongewijzigd
         }
 
         function resetForm() {
@@ -809,8 +815,7 @@
             if (spelerRikt) {
                 document.querySelector(`[onclick="selectPlayer('${getPlayerId(spelerRikt)}')"]`).classList.add('selected');
             }
-            if (spelerMaat) {
-                document.querySelector(`[onclick="selectMaat('${getPlayerId(spelerMaat)}')"]`).classList.add('selected');
+            if (spelerMaat) {document.querySelector(`[onclick="selectMaat('${getPlayerId(spelerMaat)}')"]`).classList.add('selected');
             }
         }
 
