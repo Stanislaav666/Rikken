@@ -46,7 +46,7 @@
             cursor: not-allowed;
         }
         .players button.dealer {
-            background-color: #80bdff; 
+            background-color: #80bdff;
         }
         select, input[type="number"] {
             padding: 10px;
@@ -65,10 +65,10 @@
         }
         .pass-btn {
             padding: 10px 20px;
-            background-color: #ceb236; /* Tomato color */
+            background-color: #ceb236;
             border: none;
             border-radius: 5px;
-            color: #fff; /* Witte tekstkleur */
+            color: #fff;
             cursor: pointer;
         }
     </style>
@@ -191,13 +191,18 @@
         });
 
         function calculateScore() {
+            const spelvorm = document.getElementById('spelvorm').value;
+
+            if ((spelvorm === 'Rikken' || spelvorm === '3 Azen') && !spelerMaat) {
+                alert('Selecteer een maat voor deze spelvorm!');
+                return;
+            }
+
             lastScores = { ...scores }; // Sla de huidige scores op voor ongedaan maken
             lastSpelerRikt = spelerRikt; // Sla de huidige rikker op
             lastSpelerMaat = spelerMaat; // Sla de huidige maat op
 
             const slagen = parseFloat(document.getElementById('slagen').value);
-            const spelvorm = document.getElementById('spelvorm').value;
-            resetForm(); // Voeg deze regel toe om het formulier te resetten
 
             if (!spelerRikt) {
                 alert("Selecteer een rikker.");
@@ -321,7 +326,7 @@
                 document.getElementById('spelvorm').blur();
             }
             // ------> Einde blok voor de telling van 3 Azen
-			        else if (spelvorm === '8 Alleen') {
+            else if (spelvorm === '8 Alleen') {
                 const standaardWinst = 6;
                 const standaardVerlies = -9;
                 const extraWinstPerSlag = 3;
@@ -358,8 +363,8 @@
                 document.getElementById('spelvorm').blur();
             }
             // ------> Einde blok voor de telling van 8 Alleen
-			
-			// ------> Hieronder is het blok voor de telling van 9 Alleen
+
+            // ------> Hieronder is het blok voor de telling van 9 Alleen
             else if (spelvorm === '9 Alleen') {
                 const standaardWinst = 9;
                 const standaardVerlies = -12;
@@ -436,8 +441,8 @@
                 document.getElementById('spelvorm').blur();
             }
             // ------> Einde blok voor de telling van 10 Alleen
-			
 
+            // ------> Hieronder is het blok voor de telling van 11 Alleen
             // ------> Hieronder is het blok voor de telling van 11 Alleen
             else if (spelvorm === '11 Alleen') {
                 const standaardWinst = 15;
@@ -475,7 +480,6 @@
                 document.getElementById('slagen').blur();
                 document.getElementById('spelvorm').blur();
             }
-			
             // ------> Einde blok voor de telling van 11 Alleen
 
             // ------> Hieronder is het blok voor de telling van 12 Alleen
@@ -549,7 +553,6 @@
                 // Focus verwijderen
                 document.getElementById('slagen').blur();
                 document.getElementById('spelvorm').blur();
-				
             }
             // ------> Einde blok voor de telling van Solo
 
@@ -564,7 +567,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies;
+                    puntenRikker = standaardVerlies;
                 }
 
                 // Punten toewijzen
@@ -599,7 +602,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies;
+                    puntenRikker = standaardVerlies;
                 }
 
                 // Punten toewijzen
@@ -634,7 +637,7 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                    puntenRikker = standaardVerlies; // Correcte notatie voor negatieve score
                 }
 
                 // Punten toewijzen
@@ -669,45 +672,12 @@
                     puntenRikker = standaardWinst;
                 } else {
                     // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
+                    puntenRikker = standaardVerlies; // Correcte notatie voor negatieve score
                 }
 
                 // Punten toewijzen
                 scores[rikkerId] += puntenRikker;
-                actieveSpelers.forEach(id => {
-                    scores[id] += -puntenRikker / actieveSpelers.length;
-                });
-
-                updateScoreOverview();
-                clearPlayerSelection();
-                updateDealerButton();
-
-                // Reset het formulier
-                document.getElementById('slagen').value = '';
-                document.getElementById('spelvorm').value = 'Rikken';
-                toggleOptions();
-
-                // Focus verwijderen
-                document.getElementById('slagen').blur();
-                document.getElementById('spelvorm').blur();
-            }
-            // ------> Einde blok voor de telling van Open Piek
-
-            // ------> Hieronder is het blok voor de telling van Open Solo
-            else if (spelvorm === 'Open Solo') {
-                const standaardWinst = 36;
-                const standaardVerlies = -36;
-                const minimumSlagen = 13;
-
-                if (slagen === minimumSlagen) {
-                    // Win scenario
-                    puntenRikker = standaardWinst;
-                } else {
-                    // Verlies scenario
-                    puntenRikker = 1 * standaardVerlies; // Correcte notatie voor negatieve score
-                }
-
-                // Punten toewijzen
+// Punten toewijzen
                 scores[rikkerId] += puntenRikker;
                 actieveSpelers.forEach(id => {
                     scores[id] += -puntenRikker / actieveSpelers.length;
@@ -727,12 +697,11 @@
                 document.getElementById('spelvorm').blur();
             }
             // ------> Einde blok voor de telling van Open Solo
-			// ------> Hieronder is het blok voor de telling van 8 Alleen
-    
-			function resetForm() {
-				document.getElementById('spelvorm').value = 'Rikken';
-				document.getElementById('slagen').value = '';
-			}
+        }
+
+        function resetForm() {
+            document.getElementById('spelvorm').value = 'Rikken';
+            document.getElementById('slagen').value = '';
         }
 
         function passRound() {
