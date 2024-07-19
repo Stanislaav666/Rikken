@@ -71,6 +71,12 @@
             color: #fff;
             cursor: pointer;
         }
+        .net-score-positive {
+            color: green;
+        }
+        .net-score-negative {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -277,7 +283,7 @@
                 const standaardWinst = 4;
                 const standaardVerlies = -6;
                 const extraWinstPerSlag = 4;
-                const extraVerliesPerSlag = -3;
+                const extraVerliesPerSlag = -6;
                 const minimumSlagen = 8;
 
                 if (slagen >= minimumSlagen) {
@@ -443,7 +449,6 @@
             // ------> Einde blok voor de telling van 10 Alleen
 
             // ------> Hieronder is het blok voor de telling van 11 Alleen
-            // ------> Hieronder is het blok voor de telling van 11 Alleen
             else if (spelvorm === '11 Alleen') {
                 const standaardWinst = 15;
                 const standaardVerlies = -18;
@@ -597,7 +602,7 @@
                 const standaardVerlies = -15;
                 const minimumSlagen = 1;
 
-                if (slagen >= minimumSlagen) {
+                if (slagen == minimumSlagen) {
                     // Win scenario
                     puntenRikker = standaardWinst;
                 } else {
@@ -667,7 +672,7 @@
                 const standaardVerlies = -24;
                 const minimumSlagen = 1;
 
-                if (slagen >= minimumSlagen) {
+                if (slagen == minimumSlagen) {
                     // Win scenario
                     puntenRikker = standaardWinst;
                 } else {
@@ -677,7 +682,40 @@
 
                 // Punten toewijzen
                 scores[rikkerId] += puntenRikker;
-// Punten toewijzen
+                actieveSpelers.forEach(id => {
+                    scores[id] += -puntenRikker / actieveSpelers.length;
+                });
+
+                updateScoreOverview();
+                clearPlayerSelection();
+                updateDealerButton();
+
+                // Reset het formulier
+                document.getElementById('slagen').value = '';
+                document.getElementById('spelvorm').value = 'Rikken';
+                toggleOptions();
+
+                // Focus verwijderen
+                document.getElementById('slagen').blur();
+                document.getElementById('spelvorm').blur();
+            }
+            // ------> Einde blok voor de telling van Open Piek
+
+            // ------> Hieronder is het blok voor de telling van Open Solo
+            else if (spelvorm === 'Open Solo') {
+                const standaardWinst = 24;
+                const standaardVerlies = -24;
+                const minimumSlagen = 13;
+
+                if (slagen === minimumSlagen) {
+                    // Win scenario
+                    puntenRikker = standaardWinst;
+                } else {
+                    // Verlies scenario
+                    puntenRikker = standaardVerlies; // Correcte notatie voor negatieve score
+                }
+
+                // Punten toewijzen
                 scores[rikkerId] += puntenRikker;
                 actieveSpelers.forEach(id => {
                     scores[id] += -puntenRikker / actieveSpelers.length;
@@ -717,12 +755,20 @@
                 player3: "Harald",
                 player4: "Mark"
             };
-            
+            const initialScores = JSON.parse(localStorage.getItem('scores')) || {
+                score1: 0,
+                score2: 0,
+                score3: 0,
+                score4: 0
+            };
+
             let overviewText = '<br><br>';
 
             for (let key in players) {
                 if (players[key]) {
-                    overviewText += `${players[key]}: ${scores[key]}<br>`;
+                    let netScore = scores[key] - initialScores[`score${key.slice(-1)}`];
+                    let netScoreClass = netScore >= 0 ? 'net-score-positive' : 'net-score-negative';
+                    overviewText += `${players[key]}: ${scores[key]} <span class="${netScoreClass}">(${netScore})</span><br>`;
                 }
             }
 
