@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -67,6 +68,12 @@
             border-radius: 5px;
             color: #fff;
             cursor: pointer;
+        }
+        .net-score-positive {
+            color: green;
+        }
+        .net-score-negative {
+            color: red;
         }
     </style>
 </head>
@@ -138,7 +145,17 @@
             <label><input type="checkbox" id="confirm-reset" onclick="toggleResetButton()"> Bevestig reset</label>
             <button id="reset-button" onclick="resetScores()" disabled>Reset</button>
         </div>
+
+								 
+								 
+																		
+																						   
+			  
+  
+ 
+	  
     </div>
+
 
     <script>
         let spelerRikt = '';
@@ -157,8 +174,20 @@
         let ronde = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const players = JSON.parse(localStorage.getItem('players'));
-            const initialScores = JSON.parse(localStorage.getItem('scores'));
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark",
+                player5: "Stanley"
+            };
+            const initialScores = JSON.parse(localStorage.getItem('scores')) || {
+                score1: 0,
+                score2: 0,
+                score3: 0,
+                score4: 0,
+                score5: 0
+            };
 
             document.getElementById('rikker-speler-1').textContent = players.player1;
             document.getElementById('rikker-speler-2').textContent = players.player2;
@@ -691,7 +720,7 @@
                 resetForm();
             }
             // ------> Einde blok voor de telling van Open Solo
-            // Blok voor overige spelvormen blijft ongewijzigd
+															  
         }
 
         function resetForm() {
@@ -727,13 +756,28 @@
         }
 
         function updateScoreOverview() {
-            const players = JSON.parse(localStorage.getItem('players'));
-            
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark",
+                player5: "Stanley"
+            };
+            const initialScores = JSON.parse(localStorage.getItem('scores')) || {
+                score1: 0,
+                score2: 0,
+                score3: 0,
+                score4: 0,
+                score5: 0
+            };
+
             let overviewText = '<br><br>';
 
             for (let key in players) {
                 if (players[key]) {
-                    overviewText += `${players[key]}: ${scores[key]}<br>`;
+                    const netScore = scores[key] - initialScores[`score${key.slice(-1)}`];
+                    const netScoreClass = netScore >= 0 ? 'net-score-positive' : 'net-score-negative';
+                    overviewText += `${players[key]}: ${scores[key]} | <span class="${netScoreClass}">${netScore}</span><br>`;
                 }
             }
 
@@ -759,7 +803,13 @@
         }
 
         function selectPlayer(playerId) {
-            const players = JSON.parse(localStorage.getItem('players'));
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark",
+                player5: "Stanley"
+            };
             const playerName = players[playerId];
             const inactivePlayer = localStorage.getItem('inactivePlayer');
 
@@ -780,7 +830,13 @@
         }
 
         function selectMaat(playerId) {
-            const players = JSON.parse(localStorage.getItem('players'));
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark",
+                player5: "Stanley"
+            };
             const playerName = players[playerId];
             const inactivePlayer = localStorage.getItem('inactivePlayer');
 
@@ -815,7 +871,8 @@
             if (spelerRikt) {
                 document.querySelector(`[onclick="selectPlayer('${getPlayerId(spelerRikt)}')"]`).classList.add('selected');
             }
-            if (spelerMaat) {document.querySelector(`[onclick="selectMaat('${getPlayerId(spelerMaat)}')"]`).classList.add('selected');
+            if (spelerMaat) {
+                document.querySelector(`[onclick="selectMaat('${getPlayerId(spelerMaat)}')"]`).classList.add('selected');
             }
         }
 
@@ -834,8 +891,13 @@
         }
 
         function getPlayerId(playerName) {
-            const players = JSON.parse(localStorage.getItem('players'));
-
+            const players = JSON.parse(localStorage.getItem('players')) || {
+                player1: "Ad",
+                player2: "Bart",
+                player3: "Harald",
+                player4: "Mark",
+                player5: "Stanley"
+            };
             for (let key in players) {
                 if (players[key] === playerName) {
                     return key;
@@ -857,6 +919,43 @@
             const resetButton = document.getElementById('reset-button');
             resetButton.disabled = !confirmReset.checked;
         }
+  
+								
+																		 
+				  
+				  
+				  
+				  
+									
+	  
+
+					   
+													   
+													   
+													   
+													   
+																		  
+	  
+
+																	
+					  
+						
+						  
+						
+											  
+	  
+
+								  
+
+							  
+						   
+																	 
+		 
+	 
+
+																		   
+ 
+
 
         function resetScores() {
             if (confirm("Weet je zeker dat je alle scores wilt resetten?")) {
@@ -874,6 +973,11 @@
                 document.getElementById('reset-button').disabled = true;
             }
         }
+  
+  
+  
+  
+  
     </script>
 </body>
 </html>
