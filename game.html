@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rikken</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Rikken</h1>
+
+        <div class="section">
+            <h2>Selecteer de speler die rikt</h2>
+            <div class="players" id="rikker-selectie">
+                <!-- Spelerknoppen worden hier dynamisch gegenereerd -->
+            </div>
+            <p id="selected-rikker">Geselecteerde rikker: Geen</p>
+        </div>
+
+        <div class="section" id="maat-section">
+            <h2>Selecteer de maat</h2>
+            <div class="players" id="maat-selectie">
+                <!-- Spelerknoppen worden hier dynamisch gegenereerd -->
+            </div>
+            <p id="selected-maat">Geselecteerde maat: Geen</p>
+        </div>
+
+        <div class="section">
+            <h2>Selecteer de spelvorm</h2>
+            <select id="spelvorm">
+                <!-- Spelvormen worden hier dynamisch gegenereerd -->
+            </select>
+        </div>
+
+        <div class="section">
+            <h2>Voer de behaalde slagen in</h2>
+            <input type="number" id="slagen" min="0" max="13" placeholder="Behaalde slagen (0-13)">
+            <button class="submit" id="bereken-button">Bereken Score</button>
+            <button class="pass-btn" id="pas-button">Pas</button>
+        </div>
+
+        <div class="section">
+            <h2>Overzicht</h2>
+            <div id="score-overview">Nog geen score berekend</div>
+        </div>
+
+        <div class="section">
+            <label><input type="checkbox" id="confirm-undo"> Bevestig ongedaan maken</label>
+            <button id="undo-button" disabled>Ongedaan maken</button>
+        </div>
+
+        <div class="section">
+            <label><input type="checkbox" id="confirm-reset"> Bevestig reset</label>
+            <button id="reset-button" disabled>Reset</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

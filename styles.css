@@ -1,0 +1,91 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.container {
+    background-color: #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    margin: auto;
+    text-align: center;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+.section {
+    margin: 20px 0;
+}
+
+.players button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.players button.selected {
+    background-color: #0056b3;
+    font-weight: bold;
+}
+
+.players button.inactive {
+    background-color: lightgray;
+    color: black;
+    cursor: not-allowed;
+}
+
+.players button.dealer {
+    background-color: #80bdff;
+}
+
+select,
+input[type="number"] {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+}
+
+button.submit {
+    padding: 10px 20px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.pass-btn {
+    padding: 10px 20px;
+    background-color: #ceb236;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.net-score-positive {
+    color: green;
+}
+
+.net-score-negative {
+    color: red;
+}
+
+#score-overview p {
+    margin: 5px 0;
+}
