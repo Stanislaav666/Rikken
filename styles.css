@@ -36,7 +36,7 @@ h1, h2 {
     cursor: pointer;
 }
 
-.players button.selected {
+players .player button.selected {
     background-color: #0056b3;
     font-weight: bold;
     color: black;
