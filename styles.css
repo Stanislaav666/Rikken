@@ -39,6 +39,7 @@ h1, h2 {
 .players button.selected {
     background-color: #0056b3;
     font-weight: bold;
+    color: black;
 }
 
 .players button.inactive {
